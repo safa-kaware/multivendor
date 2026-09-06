@@ -2,6 +2,8 @@
 
 require_once "config/app.php";
 
+require_once "config/stripe.php";
+
 
 /*
 |--------------------------------------------------------------------------
@@ -632,9 +634,7 @@ if (
 
         "cod",
 
-        "stripe",
-
-        "razorpay"
+        "stripe"
 
     ];
 
@@ -669,6 +669,237 @@ if (
             "Your cart does not contain any valid products.";
 
     }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | STRIPE PAYMENT HANDLING
+    |--------------------------------------------------------------------------
+    |
+    | Uses Stripe PaymentIntents + an embedded Stripe Elements card form.
+    |
+    | Step 1 (first submit): no stripe_payment_intent_id in POST yet.
+    |         Create a PaymentIntent via the Stripe API and render a page
+    |         with an embedded card form. No local order row is created
+    |         yet.
+    |
+    | Step 2 (auto resubmit after payment): stripe_payment_intent_id is
+    |         present in POST. Verify with Stripe that this PaymentIntent
+    |         actually succeeded and the amount matches. If it checks out,
+    |         fall through into the normal CREATE ORDER block below (same
+    |         as COD) with payment already marked as paid.
+    |
+    */
+
+    $stripeVerified = false;
+
+    if (
+        $paymentMethod === "stripe"
+        && empty($errors)
+    ) {
+
+        if (
+            isset($_POST["stripe_payment_intent_id"])
+        ) {
+
+            $verifyCh = curl_init(
+                "https://api.stripe.com/v1/payment_intents/"
+                . urlencode($_POST["stripe_payment_intent_id"])
+            );
+
+            curl_setopt($verifyCh, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($verifyCh, CURLOPT_USERPWD, STRIPE_SECRET_KEY . ":");
+
+            $verifyResponse = curl_exec($verifyCh);
+            $verifyHttpCode = curl_getinfo($verifyCh, CURLINFO_HTTP_CODE);
+
+            curl_close($verifyCh);
+
+            $stripeIntent = json_decode($verifyResponse, true);
+
+            $expectedAmountPaise =
+                (int) round($totalAmount * 100);
+
+            if (
+                $verifyHttpCode === 200
+                && ($stripeIntent["status"] ?? "") === "succeeded"
+                && (int) ($stripeIntent["amount"] ?? 0) === $expectedAmountPaise
+                && ($stripeIntent["currency"] ?? "") === "inr"
+            ) {
+
+                $stripeVerified = true;
+
+            } else {
+
+                $errors[] =
+                    "Payment verification failed. Please try again.";
+
+            }
+
+        } else {
+
+            $stripeAmountPaise =
+                (int) round($totalAmount * 100);
+
+            $ch = curl_init("https://api.stripe.com/v1/payment_intents");
+
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_USERPWD, STRIPE_SECRET_KEY . ":");
+            curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query([
+                "amount" => $stripeAmountPaise,
+                "currency" => "inr",
+                "automatic_payment_methods[enabled]" => "true",
+                "metadata[user_id]" => $userId,
+            ]));
+
+            $stripeResponse = curl_exec($ch);
+            $stripeHttpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            $stripeCurlError = curl_error($ch);
+
+            curl_close($ch);
+
+            $stripeIntent = json_decode($stripeResponse, true);
+
+            if (
+                $stripeCurlError !== ""
+                || $stripeHttpCode !== 200
+                || empty($stripeIntent["client_secret"])
+            ) {
+
+                $errors[] =
+                    "Unable to initiate payment right now. Please try again or choose Cash on Delivery.";
+
+            } else {
+
+                $pageTitle =
+                    "Complete Payment | "
+                    . APP_NAME;
+
+                require_once "includes/header.php";
+
+                ?>
+
+                <div class="container py-5">
+
+                    <div class="row justify-content-center">
+
+                        <div class="col-md-6">
+
+                            <h4 class="mb-4 text-center">
+                                Enter Card Details
+                            </h4>
+
+                            <form
+                                id="stripeResubmitForm"
+                                method="POST"
+                            >
+
+                                <?php foreach ($_POST as $fieldKey => $fieldValue): ?>
+
+                                    <?php if (is_scalar($fieldValue)): ?>
+
+                                        <input
+                                            type="hidden"
+                                            name="<?= e($fieldKey) ?>"
+                                            value="<?= e($fieldValue) ?>"
+                                        >
+
+                                    <?php endif; ?>
+
+                                <?php endforeach; ?>
+
+                                <input
+                                    type="hidden"
+                                    name="stripe_payment_intent_id"
+                                    id="stripe_payment_intent_id"
+                                    value=""
+                                >
+
+                                <div
+                                    id="card-element"
+                                    class="form-control mb-3"
+                                    style="height: 45px; padding-top: 12px;"
+                                ></div>
+
+                                <div
+                                    id="card-errors"
+                                    class="text-danger small mb-3"
+                                ></div>
+
+                                <button
+                                    type="submit"
+                                    id="stripeSubmitButton"
+                                    class="btn btn-dark w-100"
+                                >
+                                    Pay ₹<?= number_format($totalAmount, 2) ?>
+                                </button>
+
+                            </form>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <script src="https://js.stripe.com/v3/"></script>
+
+                <script>
+                var stripe = Stripe("<?= e(STRIPE_PUBLISHABLE_KEY) ?>");
+                var elements = stripe.elements();
+                var cardElement = elements.create("card");
+                cardElement.mount("#card-element");
+
+                var form = document.getElementById("stripeResubmitForm");
+                var submitButton = document.getElementById("stripeSubmitButton");
+
+                form.addEventListener("submit", function (event) {
+
+                    event.preventDefault();
+
+                    submitButton.disabled = true;
+                    submitButton.textContent = "Processing...";
+
+                    stripe.confirmCardPayment(
+                        "<?= e($stripeIntent["client_secret"]) ?>",
+                        {
+                            payment_method: {
+                                card: cardElement
+                            }
+                        }
+                    ).then(function (result) {
+
+                        if (result.error) {
+
+                            document.getElementById("card-errors").textContent = result.error.message;
+                            submitButton.disabled = false;
+                            submitButton.textContent = "Pay ₹<?= number_format($totalAmount, 2) ?>";
+
+                        } else if (result.paymentIntent.status === "succeeded") {
+
+                            document.getElementById("stripe_payment_intent_id").value = result.paymentIntent.id;
+                            form.submit();
+
+                        }
+
+                    });
+
+                });
+                </script>
+
+                <?php
+
+                require_once "includes/footer.php";
+
+                exit;
+
+            }
+
+        }
+
+    }
+
 
 
     /*
@@ -965,7 +1196,9 @@ $totalAmount =
             */
 
             $paymentStatus =
-                "pending";
+                $stripeVerified
+                    ? "paid"
+                    : "pending";
 
 
             /*
@@ -1725,7 +1958,7 @@ Stripe
 
 <small class="text-muted">
 
-Stripe payment integration will be added later.
+Pay securely by Card via Stripe.
 
 </small>
 
@@ -1734,49 +1967,6 @@ Stripe payment integration will be added later.
 
 </div>
 
-
-
-<!-- RAZORPAY -->
-
-<div
-    class="form-check border rounded p-3"
->
-
-
-<input
-    class="form-check-input ms-0 me-2"
-    type="radio"
-    name="payment_method"
-    value="razorpay"
-    id="payment_razorpay"
->
-
-
-<label
-    class="form-check-label"
-    for="payment_razorpay"
->
-
-<strong>
-
-Razorpay
-
-</strong>
-
-
-<br>
-
-
-<small class="text-muted">
-
-Razorpay integration will be added later.
-
-</small>
-
-</label>
-
-
-</div>
 
 
 <div
@@ -1790,10 +1980,7 @@ Current stage:
 </strong>
 
 
-COD orders are processed immediately.
-
-
-Stripe and Razorpay will be integrated in the payment gateway milestone.
+COD and Stripe orders are processed immediately.
 
 </div>
 

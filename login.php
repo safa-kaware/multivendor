@@ -189,6 +189,32 @@ require_once "includes/header.php";
                         </p>
 
 
+                        <!-- Demo Credentials for Examiner -->
+
+                        <div class="alert alert-info small mb-4">
+
+                            <strong class="d-block mb-2">
+                                Demo Accounts (for testing)
+                            </strong>
+
+                            <div class="mb-1">
+                                <strong>Admin:</strong>
+                                admin@demo.com / Demo@123
+                            </div>
+
+                            <div class="mb-1">
+                                <strong>Vendor:</strong>
+                                vendor@demo.com / Demo@123
+                            </div>
+
+                            <div>
+                                <strong>Customer:</strong>
+                                customer@demo.com / Demo@123
+                            </div>
+
+                        </div>
+
+
                         <!-- Registration Success -->
 
                         <?php if (
@@ -291,30 +317,14 @@ require_once "includes/header.php";
 
                                 </label>
 
-<div class="input-group">
 
-                                    <input
-                                        type="password"
-                                        id="password"
-                                        name="password"
-                                        class="form-control"
-                                        required
-                                    >
-
-                                    <button
-                                        type="button"
-                                        class="btn btn-outline-secondary"
-                                        id="togglePassword"
-                                        tabindex="-1"
-                                    >
-
-                                        <i class="bi bi-eye" id="togglePasswordIcon"></i>
-
-                                    </button>
-
-                                </div>
-
-                            </div>
+                                <input
+                                    type="password"
+                                    id="password"
+                                    name="password"
+                                    class="form-control"
+                                    required
+                                >
 
                             </div>
 
@@ -362,30 +372,6 @@ require_once "includes/header.php";
 
 
 <?php
-?>
-
-<script>
-document.getElementById("togglePassword").addEventListener("click", function () {
-
-    const passwordInput = document.getElementById("password");
-    const icon = document.getElementById("togglePasswordIcon");
-
-    if (passwordInput.type === "password") {
-        passwordInput.type = "text";
-        icon.classList.remove("bi-eye");
-        icon.classList.add("bi-eye-slash");
-    } else {
-        passwordInput.type = "password";
-        icon.classList.remove("bi-eye-slash");
-        icon.classList.add("bi-eye");
-    }
-
-});
-</script>
-
-<?php
-
-require_once "includes/footer.php";
 
 require_once "includes/footer.php";
 

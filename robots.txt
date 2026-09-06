@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /vendor/
+Disallow: /api/
+Disallow: /config/
+Disallow: /functions/
+Disallow: /cart.php
+Disallow: /checkout.php
+
+Sitemap: http://localhost/multivendor/sitemap.php

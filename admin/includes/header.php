@@ -155,6 +155,22 @@
         <li class="nav-item mb-2">
 
             <a
+                href="<?= BASE_URL ?>admin/banners.php"
+                class="nav-link"
+            >
+
+                <i class="bi bi-images"></i>
+
+                Banners
+
+            </a>
+
+        </li>
+
+
+        <li class="nav-item mb-2">
+
+            <a
                 href="<?= BASE_URL ?>admin/vendors.php"
                 class="nav-link"
             >

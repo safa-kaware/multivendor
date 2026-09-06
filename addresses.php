@@ -261,6 +261,14 @@ if (
         */
         
 
+        $addressLine =
+            $addressLine1
+            . (
+                $addressLine2 !== ""
+                    ? ", " . $addressLine2
+                    : ""
+            );
+
         $stmt = $pdo->prepare(
             "INSERT INTO addresses
             (
@@ -281,10 +289,10 @@ if (
             $userId,
             $fullName,
             $phone,
-            $address_Line,
+            $addressLine,
             $city,
             $state,
-            $pincode,
+            $postalCode,
             $country,
             $isDefault
         ]);

@@ -1,8 +1,18 @@
 # Environment variables
 .env
 
+# Sensitive config files (contain real DB password and API keys)
+config/database.php
+config/stripe.php
+config/razorpay.php
+
 # Uploaded files
-assets/uploads/*
+uploads/products/*
+uploads/categories/*
+uploads/banners/*
+!uploads/products/.gitkeep
+!uploads/categories/.gitkeep
+!uploads/banners/.gitkeep
 
 # IDE
 .vscode/

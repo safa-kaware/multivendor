@@ -29,9 +29,8 @@
 
 $productUrl =
     BASE_URL
-    . "product.php?id="
-    . (int) $product["id"];
-
+    . "product.php?slug="
+    . urlencode($product["slug"]);
 
 /*
 |--------------------------------------------------------------------------

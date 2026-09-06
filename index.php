@@ -10,6 +10,24 @@ $metaDescription =
 
 /*
 |--------------------------------------------------------------------------
+| Get Active Banners
+|--------------------------------------------------------------------------
+*/
+
+$bannerStmt =
+    $pdo->query(
+        "SELECT *
+         FROM banners
+         WHERE status = 'active'
+         ORDER BY sort_order ASC, created_at DESC"
+    );
+
+$banners =
+    $bannerStmt->fetchAll(PDO::FETCH_ASSOC);
+
+
+/*
+|--------------------------------------------------------------------------
 | Get Categories
 |--------------------------------------------------------------------------
 */
@@ -86,6 +104,99 @@ require_once "includes/header.php";
 
 
     <!-- Hero Section -->
+<!-- Hero Section -->
+
+<?php if (!empty($banners)): ?>
+
+    <section class="hero-banners">
+
+        <div
+            id="homeBannerCarousel"
+            class="carousel slide"
+            data-bs-ride="carousel"
+        >
+
+            <div class="carousel-indicators">
+
+                <?php foreach ($banners as $index => $banner): ?>
+
+                    <button
+                        type="button"
+                        data-bs-target="#homeBannerCarousel"
+                        data-bs-slide-to="<?= $index ?>"
+                        class="<?= $index === 0 ? "active" : "" ?>"
+                        aria-current="<?= $index === 0 ? "true" : "false" ?>"
+                    ></button>
+
+                <?php endforeach; ?>
+
+            </div>
+
+            <div class="carousel-inner">
+
+                <?php foreach ($banners as $index => $banner): ?>
+
+                    <div class="carousel-item <?= $index === 0 ? "active" : "" ?>">
+
+                        <img
+                            src="<?= BASE_URL ?>uploads/banners/<?= e($banner["image"]) ?>"
+                            class="d-block w-100"
+                            style="max-height: 420px; object-fit: cover;"
+                            alt="<?= e($banner["title"]) ?>"
+                        >
+
+                        <div class="carousel-caption d-none d-md-block bg-dark bg-opacity-50 rounded p-3">
+
+                            <h2 class="fw-bold"><?= e($banner["title"]) ?></h2>
+
+                            <?php if (!empty($banner["subtitle"])): ?>
+                                <p><?= e($banner["subtitle"]) ?></p>
+                            <?php endif; ?>
+
+                            <?php if (!empty($banner["button_text"]) && !empty($banner["button_link"])): ?>
+                                
+                                    href="<?= e($banner["button_link"]) ?>"
+                                    class="btn btn-light btn-sm"
+                                >
+                                    <?= e($banner["button_text"]) ?>
+                                </a>
+                            <?php endif; ?>
+
+                        </div>
+
+                    </div>
+
+                <?php endforeach; ?>
+
+            </div>
+
+            <?php if (count($banners) > 1): ?>
+
+                <button
+                    class="carousel-control-prev"
+                    type="button"
+                    data-bs-target="#homeBannerCarousel"
+                    data-bs-slide="prev"
+                >
+                    <span class="carousel-control-prev-icon"></span>
+                </button>
+
+                <button
+                    class="carousel-control-next"
+                    type="button"
+                    data-bs-target="#homeBannerCarousel"
+                    data-bs-slide="next"
+                >
+                    <span class="carousel-control-next-icon"></span>
+                </button>
+
+            <?php endif; ?>
+
+        </div>
+
+    </section>
+
+<?php else: ?>
 
     <section class="hero-section bg-light">
 
@@ -112,7 +223,7 @@ require_once "includes/header.php";
                     </p>
 
 
-                    <a
+                    
                         href="<?= BASE_URL ?>search.php"
                         class="btn btn-dark btn-lg"
                     >
@@ -140,6 +251,8 @@ require_once "includes/header.php";
 
     </section>
 
+<?php endif; ?> 
+   
 
     <!-- Categories -->
 

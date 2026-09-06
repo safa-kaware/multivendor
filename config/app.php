@@ -9,7 +9,7 @@ define("APP_NAME", "MultiVendor");
 
 define(
     "BASE_URL",
-    "http://localhost/multivendor/"
+    "http://lily.wuaze.com/"
 );
 
 /*

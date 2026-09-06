@@ -338,20 +338,45 @@ require_once "../includes/header.php";
         </div>
 
 
-        <a
-            href="<?= BASE_URL ?>vendor/product-add.php"
-            class="btn btn-dark"
-        >
+        <div class="d-flex gap-2">
 
-            <i class="bi bi-plus-lg me-1"></i>
+            <a
+                href="<?= BASE_URL ?>vendor/products-export.php"
+                class="btn btn-outline-dark"
+            >
 
-            Add Product
+                <i class="bi bi-download me-1"></i>
 
-        </a>
+                Export CSV
+
+            </a>
+
+            <a
+                href="<?= BASE_URL ?>vendor/products-import.php"
+                class="btn btn-outline-dark"
+            >
+
+                <i class="bi bi-upload me-1"></i>
+
+                Import CSV
+
+            </a>
+
+            <a
+                href="<?= BASE_URL ?>vendor/product-add.php"
+                class="btn btn-dark"
+            >
+
+                <i class="bi bi-plus-lg me-1"></i>
+
+                Add Product
+
+            </a>
+
+        </div>
 
 
     </div>
-
 
 
     <!-- STATISTICS -->
