@@ -1,6 +1,8 @@
-# MultiVendor 🛍️ 
+# MultiVendor 🛍️
 
 A full-stack multi-vendor e-commerce platform built with PHP, MySQL, and Bootstrap 5 — where customers shop, vendors sell, and admins run the show.
+
+**🔗 Live demo:** [http://lily.wuaze.com/](http://lily.wuaze.com/)
 
 ---
 
