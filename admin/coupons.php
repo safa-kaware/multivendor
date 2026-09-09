@@ -77,7 +77,7 @@ require_once "includes/header.php";
     </div>
 
 
-    
+    <a
         href="<?= BASE_URL ?>admin/coupon-add.php"
         class="btn btn-dark"
     >
@@ -275,7 +275,7 @@ require_once "includes/header.php";
 
                                 <td>
 
-                                    
+                                    <a
                                         href="<?= BASE_URL ?>admin/coupon-toggle.php?id=<?= e($coupon["id"]) ?>"
                                         class="badge <?= $coupon["status"] === "active" ? "bg-success" : "bg-secondary" ?> text-decoration-none"
                                     >
@@ -292,7 +292,7 @@ require_once "includes/header.php";
 
                                 <td>
 
-                                    
+                                    <a
                                         href="<?= BASE_URL ?>admin/coupon-delete.php?id=<?= e($coupon["id"]) ?>"
                                         class="btn btn-sm btn-outline-danger"
                                         onclick="return confirm('Delete this coupon?');"

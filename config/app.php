@@ -9,7 +9,7 @@ define("APP_NAME", "MultiVendor");
 
 define(
     "BASE_URL",
-    "http://lily.wuaze.com/"
+    "https://lily.wuaze.com/"
 );
 
 /*
@@ -58,7 +58,7 @@ if (!function_exists("productImageUrl")) {
         if (empty($filename)) {
             return "";
         }
-        
+
 
         /*
         | Remove accidental spaces
@@ -84,10 +84,5 @@ if (!function_exists("productImageUrl")) {
         return BASE_URL
             . "uploads/products/"
             . rawurlencode($filename);
-  
-  
-            }
-
-            
+    }
 }
-

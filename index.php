@@ -154,7 +154,7 @@ require_once "includes/header.php";
                             <?php endif; ?>
 
                             <?php if (!empty($banner["button_text"]) && !empty($banner["button_link"])): ?>
-                                
+                                <a
                                     href="<?= e($banner["button_link"]) ?>"
                                     class="btn btn-light btn-sm"
                                 >
@@ -223,7 +223,7 @@ require_once "includes/header.php";
                     </p>
 
 
-                    
+                    <a
                         href="<?= BASE_URL ?>search.php"
                         class="btn btn-dark btn-lg"
                     >

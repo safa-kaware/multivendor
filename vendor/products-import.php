@@ -386,7 +386,7 @@ $pageTitle =
     . APP_NAME;
 
 
-require_once "includes/header.php";
+require_once "../includes/header.php";
 
 ?>
 
@@ -535,4 +535,4 @@ require_once "includes/header.php";
 
 <?php
 
-require_once "includes/footer.php";
+require_once "../includes/footer.php";

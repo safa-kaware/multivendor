@@ -49,7 +49,7 @@ $products = $stmt->fetchAll();
 
 ?>
 
-<?php require_once "../includes/header.php"; ?>
+<?php require_once "includes/header.php"; ?>
 
 
 <div class="container-fluid py-5">
@@ -515,4 +515,4 @@ $products = $stmt->fetchAll();
 </div>
 
 
-<?php require_once "../includes/footer.php"; ?>
+<?php require_once "includes/footer.php"; ?>
